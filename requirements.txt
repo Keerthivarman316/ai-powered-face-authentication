@@ -21,7 +21,7 @@ networkx==3.7
 numpy==2.5.3
 onnx==1.23.0
 onnxruntime==1.30.0
-opencv-python==4.10.0.84
+opencv-python-headless==4.10.0.84
 packaging==26.3
 pillow==12.3.0
 protobuf==7.36.2
