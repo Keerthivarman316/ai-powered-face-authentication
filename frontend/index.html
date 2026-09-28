@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Face Authentication</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="header">
+
+        <div>
+            <div class="brand">
+                FACE AUTHENTICATION
+            </div>
+
+            <div class="subtitle">
+                Biometric Identity Platform
+            </div>
+        </div>
+
+        <div class="status-badge">
+            ● SYSTEM ONLINE
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <div class="tabs">
+
+        <button
+            id="enrollTab"
+            class="tab active"
+            type="button"
+            onclick="showMode('enroll')"
+        >
+            Enrollment
+        </button>
+
+        <button
+            id="verifyTab"
+            class="tab"
+            type="button"
+            onclick="showMode('verify')"
+        >
+            Identification
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         MAIN CARD
+    ====================================================== -->
+
+    <main class="card">
+
+        <!-- =================================================
+             ENROLLMENT
+        ================================================== -->
+
+        <section id="enrollMode">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h1>
+                        Enroll New User
+                    </h1>
+
+                    <p>
+                        Register a user's face using multiple
+                        live camera samples.
+                    </p>
+
+                </div>
+
+                <div class="mode-icon">
+                    +
+                </div>
+
+            </div>
+
+
+            <!-- USER DETAILS -->
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="customerId">
+                        Customer ID
+                    </label>
+
+                    <input
+                        id="customerId"
+                        type="text"
+                        value="DEMO_COMPANY"
+                        placeholder="Customer ID"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="externalUserId">
+                        External User ID
+                    </label>
+
+                    <input
+                        id="externalUserId"
+                        type="text"
+                        placeholder="e.g. USER_001"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- CAMERA -->
+
+            <div class="camera-section">
+
+                <div class="camera-wrapper">
+
+                    <video
+                        id="enrollCamera"
+                        autoplay
+                        playsinline
+                        muted
+                    ></video>
+
+                    <canvas
+                        id="enrollCanvas"
+                        style="display: none;"
+                    ></canvas>
+
+                    <div class="face-frame"></div>
+
+                    <div
+                        id="enrollCameraStatus"
+                        class="camera-status"
+                    >
+                        CAMERA READY
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PROGRESS -->
+
+            <div class="progress-container">
+
+                <div class="progress-top">
+
+                    <span>
+                        Enrollment Progress
+                    </span>
+
+                    <span id="sampleCounter">
+                        0 / 5
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div
+                        id="progressFill"
+                        class="progress-fill"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LIVE STATUS -->
+
+            <div class="status-panel">
+
+                <div class="status-row">
+
+                    <span>
+                        Face Detection
+                    </span>
+
+                    <strong
+                        id="enrollFaceStatus"
+                        class="status-value waiting"
+                    >
+                        Waiting
+                    </strong>
+
+                </div>
+
+
+                <div class="status-row">
+
+                    <span>
+                        Liveness
+                    </span>
+
+                    <strong
+                        id="enrollPadStatus"
+                        class="status-value waiting"
+                    >
+                        Waiting
+                    </strong>
+
+                </div>
+
+
+                <div class="status-row">
+
+                    <span>
+                        Samples
+                    </span>
+
+                    <strong
+                        id="enrollSampleStatus"
+                        class="status-value waiting"
+                    >
+                        0 / 5
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="button-row">
+
+                <button
+                    id="startEnrollment"
+                    class="primary-button"
+                    type="button"
+                >
+                    Start Enrollment
+                </button>
+
+                <button
+                    id="cancelEnrollment"
+                    class="secondary-button"
+                    type="button"
+                    disabled
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+
+            <!-- RESULT -->
+
+            <div
+                id="enrollResult"
+                class="result-panel hidden"
+            ></div>
+
+        </section>
+
+
+        <!-- =================================================
+             IDENTIFICATION
+        ================================================== -->
+
+        <section
+            id="verifyMode"
+            class="hidden"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <h1>
+                        Identify Person
+                    </h1>
+
+                    <p>
+                        Identify an enrolled user automatically
+                        using a live camera image.
+                    </p>
+
+                </div>
+
+                <div class="mode-icon">
+                    ✓
+                </div>
+
+            </div>
+
+
+            <!-- CAMERA -->
+
+            <div class="camera-section">
+
+                <div class="camera-wrapper">
+
+                    <video
+                        id="verifyCamera"
+                        autoplay
+                        playsinline
+                        muted
+                    ></video>
+
+                    <canvas
+                        id="verifyCanvas"
+                        style="display: none;"
+                    ></canvas>
+
+                    <div class="face-frame"></div>
+
+                    <div
+                        id="verifyCameraStatus"
+                        class="camera-status"
+                    >
+                        CAMERA READY
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="status-panel">
+
+                <div class="status-row">
+
+                    <span>
+                        Face Detection
+                    </span>
+
+                    <strong
+                        id="verifyFaceStatus"
+                        class="status-value waiting"
+                    >
+                        Waiting
+                    </strong>
+
+                </div>
+
+
+                <div class="status-row">
+
+                    <span>
+                        Liveness
+                    </span>
+
+                    <strong
+                        id="verifyPadStatus"
+                        class="status-value waiting"
+                    >
+                        Waiting
+                    </strong>
+
+                </div>
+
+
+                <div class="status-row">
+
+                    <span>
+                        System
+                    </span>
+
+                    <strong
+                        id="verifySystemStatus"
+                        class="status-value ready"
+                    >
+                        Ready
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="button-row">
+
+                <button
+                    id="verifyButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    Identify Person
+                </button>
+
+                <button
+                    id="retryButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    Retry
+                </button>
+
+            </div>
+
+
+            <!-- RESULT -->
+
+            <div
+                id="verifyResult"
+                class="result-panel hidden"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer>
+
+        Face Authentication Platform
+
+        <span>
+            •
+        </span>
+
+        Development Environment
+
+    </footer>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
