@@ -1,9 +1,23 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+// Use the same origin in deployment.
+// During local development on port 5500, point to the FastAPI server.
+const IS_LOCAL_FRONTEND =
+    ["localhost", "127.0.0.1"].includes(
+        window.location.hostname
+    ) &&
+    window.location.port === "5500";
+
+const API_BASE_URL =
+    IS_LOCAL_FRONTEND
+        ? `http://${window.location.hostname}:8000`
+        : "";
+
+const FETCH_CREDENTIALS =
+    API_BASE_URL
+        ? "include"
+        : "same-origin";
 
 const ENROLL_API_URL = `${API_BASE_URL}/enroll`;
 const IDENTIFY_API_URL = `${API_BASE_URL}/identify`;
-
-const API_KEY = "faceauth-dev-2026-rithvik-9f7k2x";
 
 const CUSTOMER_ID = "DEMO_COMPANY";
 
@@ -618,10 +632,7 @@ async function startEnrollment() {
                 {
                     method: "POST",
 
-                    headers: {
-                        "X-API-Key":
-                            API_KEY
-                    },
+                    credentials: FETCH_CREDENTIALS,
 
                     body: formData
                 }
@@ -962,10 +973,7 @@ async function identifyPerson() {
                 {
                     method: "POST",
 
-                    headers: {
-                        "X-API-Key":
-                            API_KEY
-                    },
+                    credentials: FETCH_CREDENTIALS,
 
                     body: formData
                 }
@@ -1383,6 +1391,41 @@ function escapeHTML(value) {
 
 
 /* ============================================================
+   SERVER SESSION
+   ============================================================ */
+
+async function initializeSession() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/session`,
+                {
+                    method: "GET",
+                    credentials: FETCH_CREDENTIALS,
+                }
+            );
+
+        if (!response.ok) {
+
+            console.warn(
+                "Server session initialization failed:",
+                response.status
+            );
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Server session initialization failed:",
+            error
+        );
+    }
+}
+
+
+/* ============================================================
    EVENT LISTENERS
    ============================================================ */
 
@@ -1470,7 +1513,9 @@ if (retryButton) {
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    async () => {
+
+        await initializeSession();
 
         showMode("enroll");
 
