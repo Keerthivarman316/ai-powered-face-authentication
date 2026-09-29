@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
 import os
 import secrets
@@ -13,6 +13,8 @@ API_KEY_HEADER = APIKeyHeader(
     auto_error=False,
 )
 
+SESSION_COOKIE = "face_auth_session"
+
 
 # ============================================================
 # API KEY VALIDATION
@@ -20,6 +22,10 @@ API_KEY_HEADER = APIKeyHeader(
 
 def validate_api_key(
     api_key: str | None = Depends(API_KEY_HEADER),
+    session_key: str | None = Cookie(
+        default=None,
+        alias=SESSION_COOKIE,
+    ),
 ):
     """
     Validate the client's API key.
@@ -45,10 +51,12 @@ def validate_api_key(
     # Missing API key
     # --------------------------------------------------------
 
-    if not api_key:
+    provided_key = api_key or session_key
+
+    if not provided_key:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing API key.",
+            detail="Missing API authentication.",
         )
 
     # --------------------------------------------------------
@@ -56,7 +64,7 @@ def validate_api_key(
     # --------------------------------------------------------
 
     if not secrets.compare_digest(
-        api_key,
+        provided_key,
         expected_api_key,
     ):
         raise HTTPException(
