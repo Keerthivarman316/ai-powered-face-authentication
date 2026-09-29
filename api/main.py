@@ -1,8 +1,12 @@
+import os
+from pathlib import Path
+
 from fastapi import (
     Depends,
     FastAPI,
     File,
     Form,
+    Response,
     UploadFile,
 )
 
@@ -41,12 +45,18 @@ app = FastAPI(
 # CORS
 # ============================================================
 
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS",
+        "http://127.0.0.1:5500,http://localhost:5500",
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-    ],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,6 +71,21 @@ auth_service = AuthenticationService()
 
 
 # ============================================================
+# FRONTEND
+# ============================================================
+
+FRONTEND_DIR = (
+    Path(__file__).resolve().parent.parent / "frontend"
+)
+
+if FRONTEND_DIR.exists():
+    app.frontend(
+        "/",
+        directory=str(FRONTEND_DIR),
+    )
+
+
+# ============================================================
 # HEALTH CHECK
 # ============================================================
 
@@ -70,6 +95,58 @@ def health_check():
     return {
         "status": "ok",
         "service": "face-authentication",
+    }
+
+
+# ============================================================
+# DEMO SESSION
+# ============================================================
+
+@app.get("/session")
+def create_demo_session(response: Response):
+    """
+    Create an HttpOnly browser session for the public demo.
+
+    The real API key remains server-side. This route is enabled
+    only when PUBLIC_DEMO_MODE=true.
+    """
+    public_demo_mode = os.getenv(
+        "PUBLIC_DEMO_MODE",
+        "false",
+    ).lower() in {"1", "true", "yes"}
+
+    if not public_demo_mode:
+        return {
+            "authenticated": False,
+            "message": "Public demo mode is disabled.",
+        }
+
+    api_key = os.getenv("FACE_AUTH_API_KEY")
+
+    if not api_key:
+        raise RuntimeError(
+            "FACE_AUTH_API_KEY environment variable "
+            "is not configured."
+        )
+
+    secure_cookie = os.getenv(
+        "COOKIE_SECURE",
+        "false",
+    ).lower() in {"1", "true", "yes"}
+
+    response.set_cookie(
+        key="face_auth_session",
+        value=api_key,
+        max_age=3600,
+        httponly=True,
+        secure=secure_cookie,
+        samesite="lax",
+        path="/",
+    )
+
+    return {
+        "authenticated": True,
+        "expires_in": 3600,
     }
 
 
