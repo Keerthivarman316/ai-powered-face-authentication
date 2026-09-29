@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: ai-face-authentication
+    runtime: docker
+    plan: 1c-2g
+    region: singapore
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    numInstances: 1
+
+    envVars:
+      - key: FACE_AUTH_API_KEY
+        generateValue: true
+
+      - key: PUBLIC_DEMO_MODE
+        value: "true"
+
+      - key: COOKIE_SECURE
+        value: "true"
+
+      - key: CORS_ORIGINS
+        value: ""
+
+    disk:
+      name: face-auth-database
+      mountPath: /app/database
+      sizeGB: 10
