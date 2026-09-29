@@ -11,6 +11,7 @@ from fastapi import (
 )
 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from services.authentication_service import (
     AuthenticationService,
@@ -68,21 +69,6 @@ app.add_middleware(
 # ============================================================
 
 auth_service = AuthenticationService()
-
-
-# ============================================================
-# FRONTEND
-# ============================================================
-
-FRONTEND_DIR = (
-    Path(__file__).resolve().parent.parent / "frontend"
-)
-
-if FRONTEND_DIR.exists():
-    app.frontend(
-        "/",
-        directory=str(FRONTEND_DIR),
-    )
 
 
 # ============================================================
@@ -607,3 +593,16 @@ async def identify_face(
         ),
         "pad": pad_response,
     }
+# ============================================================
+# FRONTEND STATIC FILES
+# ============================================================
+
+if FRONTEND_DIR.exists():
+    app.mount(
+        "/",
+        StaticFiles(
+            directory=str(FRONTEND_DIR),
+            html=True,
+        ),
+        name="frontend",
+    )
