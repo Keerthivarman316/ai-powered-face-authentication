@@ -1,9 +1,9 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+// The frontend is served by FastAPI in deployment.
+// Keeping this relative also allows the same build to work locally.
+const API_BASE_URL = "";
 
 const ENROLL_API_URL = `${API_BASE_URL}/enroll`;
 const IDENTIFY_API_URL = `${API_BASE_URL}/identify`;
-
-const API_KEY = "faceauth-dev-2026-rithvik-9f7k2x";
 
 const CUSTOMER_ID = "DEMO_COMPANY";
 
@@ -618,10 +618,7 @@ async function startEnrollment() {
                 {
                     method: "POST",
 
-                    headers: {
-                        "X-API-Key":
-                            API_KEY
-                    },
+                    credentials: "same-origin",
 
                     body: formData
                 }
@@ -962,10 +959,7 @@ async function identifyPerson() {
                 {
                     method: "POST",
 
-                    headers: {
-                        "X-API-Key":
-                            API_KEY
-                    },
+                    credentials: "same-origin",
 
                     body: formData
                 }
@@ -1470,7 +1464,9 @@ if (retryButton) {
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    async () => {
+
+        await initializeSession();
 
         showMode("enroll");
 
