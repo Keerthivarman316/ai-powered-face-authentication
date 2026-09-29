@@ -1,6 +1,20 @@
-// The frontend is served by FastAPI in deployment.
-// Keeping this relative also allows the same build to work locally.
-const API_BASE_URL = "";
+// Use the same origin in deployment.
+// During local development on port 5500, point to the FastAPI server.
+const IS_LOCAL_FRONTEND =
+    ["localhost", "127.0.0.1"].includes(
+        window.location.hostname
+    ) &&
+    window.location.port === "5500";
+
+const API_BASE_URL =
+    IS_LOCAL_FRONTEND
+        ? `http://${window.location.hostname}:8000`
+        : "";
+
+const FETCH_CREDENTIALS =
+    API_BASE_URL
+        ? "include"
+        : "same-origin";
 
 const ENROLL_API_URL = `${API_BASE_URL}/enroll`;
 const IDENTIFY_API_URL = `${API_BASE_URL}/identify`;
@@ -618,7 +632,7 @@ async function startEnrollment() {
                 {
                     method: "POST",
 
-                    credentials: "same-origin",
+                    credentials: FETCH_CREDENTIALS,
 
                     body: formData
                 }
@@ -959,7 +973,7 @@ async function identifyPerson() {
                 {
                     method: "POST",
 
-                    credentials: "same-origin",
+                    credentials: FETCH_CREDENTIALS,
 
                     body: formData
                 }
@@ -1386,10 +1400,10 @@ async function initializeSession() {
 
         const response =
             await fetch(
-                "/session",
+                `${API_BASE_URL}/session`,
                 {
                     method: "GET",
-                    credentials: "same-origin",
+                    credentials: FETCH_CREDENTIALS,
                 }
             );
 
