@@ -1377,6 +1377,41 @@ function escapeHTML(value) {
 
 
 /* ============================================================
+   SERVER SESSION
+   ============================================================ */
+
+async function initializeSession() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/session",
+                {
+                    method: "GET",
+                    credentials: "same-origin",
+                }
+            );
+
+        if (!response.ok) {
+
+            console.warn(
+                "Server session initialization failed:",
+                response.status
+            );
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Server session initialization failed:",
+            error
+        );
+    }
+}
+
+
+/* ============================================================
    EVENT LISTENERS
    ============================================================ */
 
