@@ -226,6 +226,8 @@ For a production multi-instance deployment, the database layer should be migrate
 
 ## 🚀 Run Locally
 
+The repository now includes a reproducible local setup so a fresh clone does **not** require manually exporting the authentication variables.
+
 ### 1. Clone
 
 ```bash
@@ -233,33 +235,82 @@ git clone https://github.com/rithvikchandrashekhar-dotcom/ai-powered-face-authen
 cd ai-powered-face-authentication
 ```
 
-### 2. Create a virtual environment
+### 2. Run the one-time setup
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+bash setup.sh
 ```
 
-### 3. Install dependencies
+This will:
+
+- Create the Python virtual environment in `venv/`.
+- Install all dependencies from `requirements.txt`.
+- Generate a new local `FACE_AUTH_API_KEY`.
+- Create a local `.env` with browser-demo settings.
+- Create the local `database/` directory.
+
+The generated `.env` is ignored by Git, so the local API key is **never committed to the repository**.
+
+### 3. Start the backend
+
+Open **Terminal 1**:
 
 ```bash
-pip install -r requirements.txt
+bash run_backend.sh
 ```
 
-### 4. Configure environment
+The backend will run at:
 
-Copy `.env.example` to `.env` and set a strong local API key.
+```text
+http://127.0.0.1:8000
+```
 
-### 5. Start FastAPI
+FastAPI docs:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The backend script automatically loads `.env`, including `PUBLIC_DEMO_MODE=true` and the generated API key. This prevents the local browser demo from hitting the previous `401` authentication problem.
+
+### 4. Start the frontend
+
+Open **Terminal 2**:
 
 ```bash
-uvicorn api.main:app --reload --port 8000
+bash run_frontend.sh
 ```
 
 Then open:
 
 ```text
-http://127.0.0.1:8000
+http://localhost:5500
+```
+
+### 5. Important security rule
+
+Never commit your real `.env` or API keys.
+
+For local development, `setup.sh` generates a different API key on each machine. Production environments such as Render should continue to provide their own environment variables/secrets rather than using the local `.env`.
+
+### Manual setup
+
+If you prefer not to use the scripts, you can still configure the project manually:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+Then replace the placeholder `FACE_AUTH_API_KEY` in `.env` with a strong random secret and start FastAPI:
+
+```bash
+set -a
+source .env
+set +a
+python -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ## ☁️ Deployment
