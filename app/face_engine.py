@@ -22,8 +22,12 @@ class FaceEngine:
         # Load InsightFace
         # ----------------------------------------------------
 
+        # Only detection and recognition are used. Skipping the
+        # landmark and gender/age models lowers memory use.
         self.app = insightface.app.FaceAnalysis(
-            name="buffalo_l"
+            name="buffalo_l",
+            allowed_modules=["detection", "recognition"],
+            providers=["CPUExecutionProvider"],
         )
 
         # CPU execution.
@@ -32,7 +36,7 @@ class FaceEngine:
         # appropriate execution provider depending on the
         # customer's hardware.
         self.app.prepare(
-            ctx_id=0,
+            ctx_id=-1,
             det_size=(640, 640)
         )
 
